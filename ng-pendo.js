@@ -95,32 +95,22 @@
             ap.disabled = true;
         };
 
-        service.bootstrap = function() {
-            if (!service.bootstrapped) {
-                var script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.async = true;
-                script.src = ('http:' === document.location.protocol ? 'http://' : 'https://' ) + 'd3accju1t3mngt.cloudfront.net/js/pa.min.js';
-                var firstScript = document.getElementsByTagName('script')[0];
-                firstScript.parentNode.insertBefore(script, firstScript);
-                service.bootstrapped = true;
-            }
-        };
-
         return { 
-            $get: function(){ return service; },
-            doNotAutoStart: function() {
-                service.doNotAutoStart = true;
-            }
+            $get: function(){ return service; }
         };
 
-    }).run(['$rootScope', '$pendolytics', function($rootScope, $pendolytics) {
-        if (!$pendolytics.doNotAutoStart) {
-            $pendolytics.bootstrap();
-        }
+    }).config(function () {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.async = true;
+        script.src = ('https:' === document.location.protocol ? 'https://' : 'http://' ) + 'd3accju1t3mngt.cloudfront.net/js/pa.min.js';
+        var firstScript = document.getElementsByTagName('script')[0];
+        firstScript.parentNode.insertBefore(script, firstScript);
+
+    }).run([ '$rootScope', '$location', '$pendolytics', function($rootScope, $location, $pendolytics) {
         ap.waitForPendo( 500, function( p ) {
             $pendolytics.load();
-            $rootScope.$on('$locationChangeSuccess', function() {
+            $rootScope.$on('$locationChangeSuccess', function(evt) {
                 $pendolytics.pageLoad();
             });
         });
